@@ -76,7 +76,7 @@ BaseParameters OSRM::NearestPreCalcFix(const BaseParameters &params) const
             nearest_res = engine::api::ResultT();
             engine_->Nearest(nearest_params, nearest_res);
             nearest_json_res = std::get<json::Object>(nearest_res);
-            waypoints = get<json::Array>(nearest_json_res.values.at("waaypoints"));
+            waypoints = get<json::Array>(nearest_json_res.values.at("waypoints"));
             location = get<json::Array>(get<json::Object>(waypoints.values.at(0)).values.at("location"));
             lon = (std::int32_t)(get<json::Number>(location.values.at(0)).value * 1e6);
             lat = (std::int32_t)(get<json::Number>(location.values.at(1)).value * 1e6);
