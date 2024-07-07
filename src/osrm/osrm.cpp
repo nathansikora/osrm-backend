@@ -159,9 +159,7 @@ Status OSRM::Match(const engine::api::MatchParameters &params, json::Object &jso
 
 Status OSRM::Match(const MatchParameters &params, engine::api::ResultT &result) const
 {
-    MatchParameters new_params = params;
-    new_params.coordinates = NearestPreCalcFix(params).coordinates;
-    return engine_->Match(new_params, result);
+    return engine_->Match(params, result);
 }
 
 Status OSRM::Tile(const engine::api::TileParameters &params, std::string &str_result) const
