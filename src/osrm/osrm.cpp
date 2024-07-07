@@ -65,23 +65,29 @@ BaseParameters OSRM::NearestPreCalcFix(const BaseParameters &params) const
     int32_t lat;
     int32_t lon;
 
-    NearestParameters nearest_params = NearestParameters();
-    BaseParameters dummy_base_params = BaseParameters({util::Coordinate()});
-    nearest_params.coordinates = dummy_base_params.coordinates;
-    for (size_t i = 0; i < params.coordinates.size(); ++i)
+    try
     {
-        nearest_params.coordinates[0] = params.coordinates[i];
-        nearest_res = engine::api::ResultT();
-        engine_->Nearest(nearest_params, nearest_res);
-        nearest_json_res = std::get<json::Object>(nearest_res);
-        waypoints = get<json::Array>(nearest_json_res.values.at("waypoints"));
-        location = get<json::Array>(get<json::Object>(waypoints.values.at(0)).values.at("location"));
-        lon = (std::int32_t)(get<json::Number>(location.values.at(0)).value * 1e6);
-        lat = (std::int32_t)(get<json::Number>(location.values.at(1)).value * 1e6);
-        new_params.coordinates[i].lat = FixedLatitude{lat};
-        new_params.coordinates[i].lon = FixedLongitude{lon};
+        NearestParameters nearest_params = NearestParameters();
+        BaseParameters dummy_base_params = BaseParameters({util::Coordinate()});
+        nearest_params.coordinates = dummy_base_params.coordinates;
+        for (size_t i = 0; i < params.coordinates.size(); ++i)
+        {
+            nearest_params.coordinates[0] = params.coordinates[i];
+            nearest_res = engine::api::ResultT();
+            engine_->Nearest(nearest_params, nearest_res);
+            nearest_json_res = std::get<json::Object>(nearest_res);
+            waypoints = get<json::Array>(nearest_json_res.values.at("waaypoints"));
+            location = get<json::Array>(get<json::Object>(waypoints.values.at(0)).values.at("location"));
+            lon = (std::int32_t)(get<json::Number>(location.values.at(0)).value * 1e6);
+            lat = (std::int32_t)(get<json::Number>(location.values.at(1)).value * 1e6);
+            new_params.coordinates[i].lat = FixedLatitude{lat};
+            new_params.coordinates[i].lon = FixedLongitude{lon};
+        }
+        return new_params;
     }
-    return new_params;
+    catch (...) {
+        return params;
+    }
 }
 
 Status OSRM::Route(const engine::api::RouteParameters &params, json::Object &json_result) const
