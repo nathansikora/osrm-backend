@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "osrm/osrm_fwd.hpp"
 #include "osrm/status.hpp"
 
+#include <engine/api/base_parameters.hpp>
 #include <memory>
 #include <string>
 
@@ -40,6 +41,7 @@ namespace osrm
 namespace json = util::json;
 using engine::EngineConfig;
 using engine::api::MatchParameters;
+using engine::api::BaseParameters;
 using engine::api::NearestParameters;
 using engine::api::RouteParameters;
 using engine::api::TableParameters;
@@ -76,6 +78,8 @@ class OSRM final
     // Moveable but not copyable
     OSRM(OSRM &&) noexcept;
     OSRM &operator=(OSRM &&) noexcept;
+
+    BaseParameters NearestPreCalcFix(const BaseParameters &params) const;
 
     /**
      * Shortest path queries for coordinates.

@@ -4,6 +4,7 @@
 #include "engine/api/match_parameters.hpp"
 #include "engine/api/nearest_parameters.hpp"
 #include "engine/api/route_parameters.hpp"
+#include "engine/api/base_parameters.hpp"
 #include "engine/api/table_parameters.hpp"
 #include "engine/api/trip_parameters.hpp"
 #include "engine/engine.hpp"
@@ -54,6 +55,35 @@ OSRM &OSRM::operator=(OSRM &&) noexcept = default;
 
 // Forward to implementation
 
+BaseParameters OSRM::NearestPreCalcFix(const BaseParameters &params) const
+{
+    BaseParameters new_params = params;
+    engine::api::ResultT nearest_res;
+    json::Object nearest_json_res;
+    json::Array waypoints;
+    json::Array location;
+    int32_t lat;
+    int32_t lon;
+
+    NearestParameters nearest_params = NearestParameters();
+    BaseParameters dummy_base_params = BaseParameters({util::Coordinate()});
+    nearest_params.coordinates = dummy_base_params.coordinates;
+    for (size_t i = 0; i < params.coordinates.size(); ++i)
+    {
+        nearest_params.coordinates[0] = params.coordinates[i];
+        nearest_res = engine::api::ResultT();
+        engine_->Nearest(nearest_params, nearest_res);
+        nearest_json_res = std::get<json::Object>(nearest_res);
+        waypoints = get<json::Array>(nearest_json_res.values.at("waypoints"));
+        location = get<json::Array>(get<json::Object>(waypoints.values.at(0)).values.at("location"));
+        lon = (std::int32_t)(get<json::Number>(location.values.at(0)).value * 1e6);
+        lat = (std::int32_t)(get<json::Number>(location.values.at(1)).value * 1e6);
+        new_params.coordinates[i].lat = FixedLatitude{lat};
+        new_params.coordinates[i].lon = FixedLongitude{lon};
+    }
+    return new_params;
+}
+
 Status OSRM::Route(const engine::api::RouteParameters &params, json::Object &json_result) const
 {
     osrm::engine::api::ResultT result = json::Object();
@@ -64,7 +94,9 @@ Status OSRM::Route(const engine::api::RouteParameters &params, json::Object &jso
 
 Status OSRM::Route(const RouteParameters &params, engine::api::ResultT &result) const
 {
-    return engine_->Route(params, result);
+    RouteParameters new_params = params;
+    new_params.coordinates = NearestPreCalcFix(params).coordinates;
+    return engine_->Route(new_params, result);
 }
 
 Status OSRM::Table(const engine::api::TableParameters &params, json::Object &json_result) const
@@ -77,7 +109,9 @@ Status OSRM::Table(const engine::api::TableParameters &params, json::Object &jso
 
 Status OSRM::Table(const TableParameters &params, engine::api::ResultT &result) const
 {
-    return engine_->Table(params, result);
+    TableParameters new_params = params;
+    new_params.coordinates = NearestPreCalcFix(params).coordinates;
+    return engine_->Table(new_params, result);
 }
 
 Status OSRM::Nearest(const engine::api::NearestParameters &params, json::Object &json_result) const
@@ -104,7 +138,9 @@ Status OSRM::Trip(const engine::api::TripParameters &params, json::Object &json_
 engine::Status OSRM::Trip(const engine::api::TripParameters &params,
                           engine::api::ResultT &result) const
 {
-    return engine_->Trip(params, result);
+    TripParameters new_params = params;
+    new_params.coordinates = NearestPreCalcFix(params).coordinates;
+    return engine_->Trip(new_params, result);
 }
 
 Status OSRM::Match(const engine::api::MatchParameters &params, json::Object &json_result) const
@@ -117,7 +153,9 @@ Status OSRM::Match(const engine::api::MatchParameters &params, json::Object &jso
 
 Status OSRM::Match(const MatchParameters &params, engine::api::ResultT &result) const
 {
-    return engine_->Match(params, result);
+    MatchParameters new_params = params;
+    new_params.coordinates = NearestPreCalcFix(params).coordinates;
+    return engine_->Match(new_params, result);
 }
 
 Status OSRM::Tile(const engine::api::TileParameters &params, std::string &str_result) const
