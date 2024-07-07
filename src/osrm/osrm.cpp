@@ -80,8 +80,8 @@ BaseParameters OSRM::NearestPreCalcFix(const BaseParameters &params) const
             location = get<json::Array>(get<json::Object>(waypoints.values.at(0)).values.at("location"));
             lon = (std::int32_t)(get<json::Number>(location.values.at(0)).value * 1e6);
             lat = (std::int32_t)(get<json::Number>(location.values.at(1)).value * 1e6);
-            new_params.coordinates[i].lat = FixedLatitude{lat};
             new_params.coordinates[i].lon = FixedLongitude{lon};
+            new_params.coordinates[i].lat = FixedLatitude{lat};
         }
         return new_params;
     }
