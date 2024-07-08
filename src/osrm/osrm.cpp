@@ -100,9 +100,10 @@ Status OSRM::Route(const engine::api::RouteParameters &params, json::Object &jso
 
 Status OSRM::Route(const RouteParameters &params, engine::api::ResultT &result) const
 {
-    RouteParameters new_params = params;
-    new_params.coordinates = NearestPreCalcFix(params).coordinates;
-    return engine_->Route(new_params, result);
+    // RouteParameters new_params = params;
+    // new_params.coordinates = NearestPreCalcFix(params).coordinates;
+    // return engine_->Route(new_params, result);
+    return engine_->Route(params, result);
 }
 
 Status OSRM::Table(const engine::api::TableParameters &params, json::Object &json_result) const
@@ -115,9 +116,10 @@ Status OSRM::Table(const engine::api::TableParameters &params, json::Object &jso
 
 Status OSRM::Table(const TableParameters &params, engine::api::ResultT &result) const
 {
-    TableParameters new_params = params;
-    new_params.coordinates = NearestPreCalcFix(params).coordinates;
-    return engine_->Table(new_params, result);
+    // TableParameters new_params = params;
+    // new_params.coordinates = NearestPreCalcFix(params).coordinates;
+    // return engine_->Table(new_params, result);
+    return engine_->Table(params, result);
 }
 
 Status OSRM::Nearest(const engine::api::NearestParameters &params, json::Object &json_result) const

@@ -6,7 +6,6 @@ Set = require('lib/set')
 Sequence = require('lib/sequence')
 Handlers = require("lib/way_handlers")
 Relations = require("lib/relations")
-TrafficSignal = require("lib/traffic_signal")
 find_access_tag = require("lib/access").find_access_tag
 limit = require("lib/maxspeed").limit
 Utils = require("lib/utils")
@@ -24,7 +23,7 @@ function setup()
       -- weight_name                     = 'distance',
       process_call_tagless_node      = false,
       u_turn_penalty                 = 20,
-      continue_straight_at_waypoint  = true,
+      continue_straight_at_waypoint  = false,
       use_turn_restrictions          = true,
       left_hand_driving              = false,
       traffic_light_penalty          = 2,
@@ -274,10 +273,8 @@ function setup()
       ["be-bru:rural"] = 70,
       ["be-bru:urban"] = 30,
       ["be-vlg:rural"] = 70,
-      ["bg:motorway"] = 140,
       ["by:urban"] = 60,
       ["by:motorway"] = 110,
-      ["ca-on:rural"] = 80,
       ["ch:rural"] = 80,
       ["ch:trunk"] = 100,
       ["ch:motorway"] = 120,
@@ -287,7 +284,6 @@ function setup()
       ["de:rural"] = 100,
       ["de:motorway"] = 0,
       ["dk:rural"] = 80,
-      ["es:trunk"] = 90,
       ["fr:rural"] = 80,
       ["gb:nsl_single"] = (60*1609)/1000,
       ["gb:nsl_dual"] = (70*1609)/1000,
@@ -296,9 +292,6 @@ function setup()
       ["nl:trunk"] = 100,
       ['no:rural'] = 80,
       ['no:motorway'] = 110,
-      ['ph:urban'] = 40,
-      ['ph:rural'] = 80,
-      ['ph:motorway'] = 100,
       ['pl:rural'] = 100,
       ['pl:trunk'] = 120,
       ['pl:motorway'] = 140,
@@ -367,7 +360,10 @@ function process_node(profile, node, result, relations)
   end
 
   -- check if node is a traffic light
-  result.traffic_lights = TrafficSignal.get_value(node)
+  local tag = node:get_value_by_key("highway")
+  if "traffic_signals" == tag then
+    result.traffic_lights = true
+  end
 end
 
 function process_way(profile, way, result, relations)
@@ -436,8 +432,8 @@ function process_way(profile, way, result, relations)
 
     -- compute speed taking into account way type, maxspeed tags, etc.
     WayHandlers.speed,
-    WayHandlers.maxspeed,
     WayHandlers.surface,
+    WayHandlers.maxspeed,
     WayHandlers.penalties,
 
     -- compute class labels
