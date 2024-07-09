@@ -102,7 +102,6 @@ Status OSRM::Route(const RouteParameters &params, engine::api::ResultT &result) 
 {
     RouteParameters new_params = params;
     new_params.coordinates = NearestPreCalcFix(params).coordinates;
-    std::cout << 'ababanana';
     return engine_->Route(new_params, result);
     // return engine_->Route(params, result);
 }
@@ -119,7 +118,6 @@ Status OSRM::Table(const TableParameters &params, engine::api::ResultT &result) 
 {
     TableParameters new_params = params;
     new_params.coordinates = NearestPreCalcFix(params).coordinates;
-    std::cout << 'ababanana';
     return engine_->Table(new_params, result);
     // return engine_->Table(params, result);
 }
